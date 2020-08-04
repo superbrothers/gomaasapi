@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/juju/errors"
 	"github.com/juju/schema"
@@ -34,6 +35,7 @@ type machine struct {
 	powerState  string
 
 	// NOTE: consider some form of status struct
+	status        string
 	statusName    string
 	statusMessage string
 
@@ -165,6 +167,11 @@ func (m *machine) DistroSeries() string {
 // Architecture implements Machine.
 func (m *machine) Architecture() string {
 	return m.architecture
+}
+
+// Status implements Machine.
+func (m *machine) Status() string {
+	return m.status
 }
 
 // StatusName implements Machine.
@@ -516,6 +523,7 @@ func machine_2_0(source map[string]interface{}) (*machine, error) {
 
 		"ip_addresses":   schema.List(schema.String()),
 		"power_state":    schema.String(),
+		"status":         schema.ForceInt(),
 		"status_name":    schema.String(),
 		"status_message": schema.OneOf(schema.Nil(""), schema.String()),
 
@@ -593,6 +601,7 @@ func machine_2_0(source map[string]interface{}) (*machine, error) {
 
 		ipAddresses:   convertToStringSlice(valid["ip_addresses"]),
 		powerState:    valid["power_state"].(string),
+		status:        strconv.Itoa(valid["status"].(int)),
 		statusName:    valid["status_name"].(string),
 		statusMessage: statusMessage,
 
